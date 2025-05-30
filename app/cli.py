@@ -39,14 +39,14 @@ def create_booking():
         # Prevent double booking
         conflict = session.query(Booking).filter_by(doctor_id=doctor_id, date=date).first()
         if conflict:
-            print("\n❌ Error: Doctor already has a booking at that time.")
+            print("\nError: Doctor already has a booking at that time.")
             return
 
         booking = Booking(parent_id=parent_id, doctor_id=doctor_id, patient_id=patient_id, date=date)
         session.add(booking)
         session.commit()
 
-        print("\n✅ Booking created successfully!")
+        print("\n Booking created successfully!")
         print(f"""
 --- Booking Confirmation ---
 Date      : {booking.date.strftime('%Y-%m-%d %H:%M')}
@@ -58,9 +58,9 @@ Phone     : {booking.parent.phone_number}
           
         """)
     except ValueError:
-        print("\n❌ Invalid input format. Please try again.")
+        print("\n Invalid input format. Please try again.")
     except Exception as e:
-        print(f"\n❌ Error: {e}")
+        print(f"\n Error: {e}")
 
 def view_future_bookings():
     print("\n--- Upcoming Bookings ---")
@@ -72,7 +72,7 @@ def view_future_bookings():
         try:
             print(f"{b.date.strftime('%Y-%m-%d %H:%M')} - {b.patient.name} with {b.doctor.name} (Parent: {b.parent.name})")
         except Exception:
-            print("⚠️ Skipped a booking with missing data.")
+            print(" Skipped a booking with missing data.")
 
 
 def admin_dashboard():
@@ -84,7 +84,7 @@ def admin_dashboard():
         try:
             print(f"{b.id}. {b.date.strftime('%Y-%m-%d %H:%M')} - {b.patient.name} with {b.doctor.name} (Parent: {b.parent.name})")
         except Exception:
-            print("⚠️ Skipped a booking with missing data.")
+            print(" Skipped a booking with missing data.")
 
 def export_bookings_to_csv():
     filename = "bookings_export.csv"
@@ -102,7 +102,7 @@ def export_bookings_to_csv():
                 ])
             except Exception:
                 continue
-    print(f"\n✅ Bookings exported to {filename}")
+    print(f"\n Bookings exported to {filename}")
 
 def add_entity():
     print("\n--- Add New Record ---")
@@ -115,7 +115,7 @@ def add_entity():
         if name and specialization:
             session.add(Doctor(name=name, specialization=specialization))
         else:
-            print("❌ Name and specialization cannot be empty.")
+            print(" Name and specialization cannot be empty.")
             return
     elif choice == "2":
         name = input("Parent name: ").strip()
@@ -123,7 +123,7 @@ def add_entity():
         if name and phone:
             session.add(Parent(name=name, phone_number=phone))
         else:
-            print("❌ Name and phone number cannot be empty.")
+            print(" Name and phone number cannot be empty.")
             return
     elif choice == "3":
         name = input("Patient name: ").strip()
@@ -132,13 +132,13 @@ def add_entity():
             parent_id = int(input("Parent ID: "))
             session.add(Patient(name=name, parent_id=parent_id))
         except ValueError:
-            print("❌ Invalid parent ID.")
+            print(" Invalid parent ID.")
             return
     else:
         print("Invalid choice.")
         return
     session.commit()
-    print("\n✅ Record added.")
+    print("\nRecord added.")
 
 def delete_booking():
     print("\n🗑 Delete a Booking")
@@ -168,7 +168,7 @@ def delete_booking():
         session.commit()
         print("✅ Booking deleted successfully.")
     else:
-        print("❌ Deletion cancelled.")
+        print(" Deletion cancelled.")
 
 def booking_stats():
     print("\nBooking Stats(upcoming)")
