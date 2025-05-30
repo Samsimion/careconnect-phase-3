@@ -55,6 +55,7 @@ Patient   : {booking.patient.name}
 Parent    : {booking.parent.name}
 Phone     : {booking.parent.phone_number}
 ----------------------------
+          
         """)
     except ValueError:
         print("\n❌ Invalid input format. Please try again.")
@@ -73,22 +74,6 @@ def view_future_bookings():
         except Exception:
             print("⚠️ Skipped a booking with missing data.")
 
-def delete_booking():
-    print("\n--- Delete a Booking ---")
-    view_future_bookings()
-    try:
-        booking_id = int(input("\nEnter Booking ID to delete: "))
-        booking = session.query(Booking).get(booking_id)
-        if not booking:
-            print("❌ Booking not found.")
-            return
-        session.delete(booking)
-        session.commit()
-        print("✅ Booking deleted successfully.")
-    except ValueError:
-        print("❌ Invalid ID format.")
-    except Exception as e:
-        print(f"❌ Error: {e}")
 
 def admin_dashboard():
     print("\n--- Admin Dashboard ---")
@@ -155,6 +140,46 @@ def add_entity():
     session.commit()
     print("\n✅ Record added.")
 
+def delete_booking():
+    print("\n🗑 Delete a Booking")
+
+    bookings = session.query(Booking).all()
+    if not bookings:
+        print("No bookings found.")
+        return
+
+    for booking in bookings:
+        print(f"ID: {booking.id} | Parent: {booking.parent.name} | Doctor: {booking.doctor.name} | Time: {booking.date.strftime('%Y-%m-%d %H:%M')}")
+
+    try:
+        booking_id = int(input("Enter the ID of the booking you want to delete: "))
+    except ValueError:
+        print("Invalid ID.")
+        return
+
+    booking = session.query(Booking).filter_by(id=booking_id).first()
+    if not booking:
+        print("Booking not found.")
+        return
+
+    confirm = input(f"Are you sure you want to delete this booking (ID {booking.id})? (yes/no): ").lower()
+    if confirm == "yes":
+        session.delete(booking)
+        session.commit()
+        print("✅ Booking deleted successfully.")
+    else:
+        print("❌ Deletion cancelled.")
+
+def booking_stats():
+    print("\nBooking Stats(upcoming)")
+    now = datetime.now()
+    doctors = session.query(Doctor).all()
+    for doc in doctors:
+        count = session.query(Booking).filter(Booking.doctor_id == doc.id, Booking.date>=now).count()
+        print(f"{doc.name} ({doc.specialization}):{count} upcoming appointments(s)")
+
+
+
 def main():
     while True:
         print("""
@@ -170,7 +195,8 @@ def main():
 7. Add Parent/Doctor/Patient
 8. View Upcoming Bookings
 9. Delete Booking
-10. Exit
+10. Booking Stats
+11. Exit
         """)
         choice = input("Choose an option: ")
 
@@ -192,11 +218,19 @@ def main():
             view_future_bookings()
         elif choice == "9":
             delete_booking()
+
         elif choice == "10":
+            booking_stats()
+        elif choice == "11":
             print("Goodbye!")
             break
+        
+            
         else:
             print("Invalid option. Please try again.")
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    finally:
+        session.close()
