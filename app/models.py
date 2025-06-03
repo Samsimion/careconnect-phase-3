@@ -51,7 +51,7 @@ class Booking(Base):
     id = Column(Integer, primary_key=True)
     parent_id = Column(Integer, ForeignKey('parents.id'), nullable=False)
     doctor_id = Column(Integer, ForeignKey('doctors.id'), nullable=False)
-    patient_id = Column(Integer, ForeignKey('patients.id'), nullable=False)  # <-- Make sure patient_id exists!
+    patient_id = Column(Integer, ForeignKey('patients.id'), nullable=False) 
     date = Column(DateTime, default=datetime.utcnow)
 
     parent = relationship('Parent', back_populates='bookings')

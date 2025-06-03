@@ -36,7 +36,7 @@ def create_booking():
         date_str = input("Enter appointment date (YYYY-MM-DD HH:MM): ")
         date = datetime.strptime(date_str, "%Y-%m-%d %H:%M")
 
-        # Prevent double booking
+        # yakuprevent ku double book
         conflict = session.query(Booking).filter_by(doctor_id=doctor_id, date=date).first()
         if conflict:
             print("\nError: Doctor already has a booking at that time.")
@@ -178,6 +178,49 @@ def booking_stats():
         count = session.query(Booking).filter(Booking.doctor_id == doc.id, Booking.date>=now).count()
         print(f"{doc.name} ({doc.specialization}):{count} upcoming appointments(s)")
 
+def view_my_bookings():
+    print("\n=== Parents ===")
+    parents = session.query(Parent).all()
+    for p in parents:
+        print(f"{p.id}. {p.name} ({p.phone_number})")
+
+    try:
+        parent_id = int(input("\nEnter your Parent ID to view bookings: "))
+        parent = session.query(Parent).get(parent_id)
+        if not parent:
+            print("Parent not found.")
+            return
+
+        print(f"\n📅 Bookings for {parent.name}:")
+        if not parent.bookings:
+            print("No bookings found.")
+        for booking in parent.bookings:
+            print(f"- {booking.date.strftime('%Y-%m-%d %H:%M')} | Patient: {booking.patient.name} | Doctor: {booking.doctor.name} ({booking.doctor.specialization})")
+    except ValueError:
+        print("Invalid input. Please enter a valid Parent ID.")
+
+def view_doctor_appointments():
+    print("\n=== Doctors ===")
+    doctors = session.query(Doctor).all()
+    for d in doctors:
+        print(f"{d.id}. Dr. {d.name} ({d.specialization})")
+
+    try:
+        doctor_id = int(input("\nEnter your Doctor ID to view appointments: "))
+        doctor = session.query(Doctor).get(doctor_id)
+        if not doctor:
+            print("Doctor not found.")
+            return
+
+        print(f"\n📋 Appointments for Dr. {doctor.name}:")
+        if not doctor.bookings:
+            print("No appointments found.")
+        for booking in doctor.bookings:
+            print(f"- {booking.date.strftime('%Y-%m-%d %H:%M')} | Patient: {booking.patient.name} | Parent: {booking.parent.name}")
+    except ValueError:
+        print("Invalid input. Please enter a valid Doctor ID.")
+
+
 
 
 def main():
@@ -196,7 +239,9 @@ def main():
 8. View Upcoming Bookings
 9. Delete Booking
 10. Booking Stats
-11. Exit
+11. View My Bookings (Parent)
+12. View My Appointments (Doctor)
+13. Exit
         """)
         choice = input("Choose an option: ")
 
@@ -222,6 +267,10 @@ def main():
         elif choice == "10":
             booking_stats()
         elif choice == "11":
+            view_my_bookings()
+        elif choice == "12":
+            view_doctor_appointments()
+        elif choice == "13":
             print("Goodbye!")
             break
         
